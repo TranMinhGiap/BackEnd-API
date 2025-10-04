@@ -11,8 +11,12 @@ module.exports.task = async (req, res) => {
     if(req.query.status){
       condition.status = req.query.status;
     }
-    console.log(condition);
-    const records = await Task.find(condition);
+    // Sort (Mặc định không có thì sẽ lấy tất cả)
+    const sort = {};
+    if(req.query.sortKey && req.query.sortValue){
+      sort[req.query.sortKey] = req.query.sortValue;
+    }
+    const records = await Task.find(condition).sort(sort);
     res.json(records);
   } catch (error) {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
