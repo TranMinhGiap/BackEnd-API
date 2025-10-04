@@ -2,12 +2,18 @@ const sendErrorHelper = require('../../../helpers/sendError.helper');
 const Task = require('../models/task.model');
 
 const paginationHelper = require('../../../helpers/objectPagination.helper');
+const searchHelper = require('../../../helpers/search.helper');
 
 // [GET] /task/
 module.exports.task = async (req, res) => {
   try {
     const condition = {
       deleted: false
+    }
+    // Search
+    const objectSearch = searchHelper.objectSearch(req.query);
+    if(objectSearch.regex){
+      condition.title = objectSearch.regex;
     }
     // Filter status (không phải lúc nào cũng có status)
     if(req.query.status){
@@ -19,7 +25,7 @@ module.exports.task = async (req, res) => {
       sort[req.query.sortKey] = req.query.sortValue;
     }
     // Pagination
-    const countDocument = await Task.countDocuments();
+    const countDocument = await Task.countDocuments(condition);
     const objectPagination = paginationHelper.objectPagination(req.query, countDocument);
     const records = await Task.find(condition).sort(sort)
       .skip(objectPagination.skip)

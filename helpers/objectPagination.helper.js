@@ -1,29 +1,21 @@
 module.exports.objectPagination = (query, totalRecord) => {
-  const objectPagination = {
-    currPage: 1,
-    limit: 2,
-    skip: null,
-    totalPage: null,
-    page_next: 2,
-    page_prev: null
-  }
-  if(query.limit){
-    objectPagination.limit = parseInt(query.limit);
-  }
-  if (query.page) {
-    objectPagination.currPage = parseInt(query.page);
-    objectPagination.skip = (objectPagination.currPage - 1) * objectPagination.limit;
-    objectPagination.totalPage = Math.ceil(totalRecord / objectPagination.limit);
-    if(objectPagination.currPage + 1 <= objectPagination.totalPage){
-      objectPagination.page_next = objectPagination.currPage + 1;
-    }else{
-      objectPagination.page_next = null;
-    }
-    if(objectPagination.currPage - 1 >= 1){
-      objectPagination.page_prev = objectPagination.currPage - 1;
-    }else{
-      objectPagination.page_prev = null;
-    }
-  }
-  return objectPagination;
-}
+  const defaultLimit = 2;
+  let limit = parseInt(query.limit) || defaultLimit;
+  limit = Math.max(1, Math.min(limit, 100)); // giới hạn 1–100
+
+  const totalPage = Math.ceil(totalRecord / limit) || 1;
+
+  let currPage = parseInt(query.page) || 1;
+  currPage = Math.max(1, Math.min(currPage, totalPage));
+
+  const skip = (currPage - 1) * limit;
+
+  return {
+    currPage,
+    limit,
+    skip,
+    totalPage,
+    page_next: currPage < totalPage ? currPage + 1 : null,
+    page_prev: currPage > 1 ? currPage - 1 : null
+  };
+};
