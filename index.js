@@ -4,30 +4,24 @@ require('dotenv').config();
 const app = express()
 const port = process.env.PORT;
 
+// routes api v1
+const routesApiV1 = require('./api/v1/routes/index.route')
+
+// Variable local view engine (Admin)
+const systemConfig = require('./config/system');
+
+// ===============================================================
+
 // Connect to the database
 database.connect();
 
-const Task = require('./models/task.model');
+// Route api v1
+routesApiV1(app);
 
-const sendErrorHelper = require('./helpers/sendError.helper');
+// Variable local view engine (Admin)
+app.locals.systemConfig = systemConfig.prefixAdmin;
 
-app.get('/task', async (_, res) => {
-  try {
-    const task = await Task.find({ deleted: false });
-    res.json(task);
-  } catch (error) {
-    sendErrorHelper.sendError(res, 500, 'Lỗi server', 'Lỗi server');
-  }
-})
-app.get('/task/detail/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    const task = await Task.findOne({ _id: id, deleted: false });
-    res.json(task);
-  } catch (error) {
-    sendErrorHelper.sendError(res, 404, 'Lỗi server', 'Lỗi server');
-  }
-})
+// ===============================================================
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
