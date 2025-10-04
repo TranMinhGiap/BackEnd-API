@@ -4,7 +4,15 @@ const Task = require('../models/task.model');
 // [GET] /task/
 module.exports.task = async (req, res) => {
   try {
-    const records = await Task.find({ deleted: false });
+    const condition = {
+      deleted: false
+    }
+    // Filter status (không phải lúc nào cũng có status)
+    if(req.query.status){
+      condition.status = req.query.status;
+    }
+    console.log(condition);
+    const records = await Task.find(condition);
     res.json(records);
   } catch (error) {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
