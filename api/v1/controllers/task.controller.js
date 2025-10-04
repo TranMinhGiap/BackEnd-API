@@ -1,6 +1,8 @@
 const sendErrorHelper = require('../../../helpers/sendError.helper');
 const Task = require('../models/task.model');
 
+const paginationHelper = require('../../../helpers/objectPagination.helper');
+
 // [GET] /task/
 module.exports.task = async (req, res) => {
   try {
@@ -16,8 +18,18 @@ module.exports.task = async (req, res) => {
     if(req.query.sortKey && req.query.sortValue){
       sort[req.query.sortKey] = req.query.sortValue;
     }
-    const records = await Task.find(condition).sort(sort);
-    res.json(records);
+    // Pagination
+    const countDocument = await Task.countDocuments();
+    const objectPagination = paginationHelper.objectPagination(req.query, countDocument);
+    const records = await Task.find(condition).sort(sort)
+      .skip(objectPagination.skip)
+      .limit(objectPagination.limit);
+    // Giúp FE xử lý phân trang tốt hơn
+    const data = {
+      data: records,
+      pagination: objectPagination
+    }
+    res.json(data);
   } catch (error) {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
   }
