@@ -52,4 +52,20 @@ module.exports.detail = async (req, res) => {
   }
 }
 
+// [PATCH] /task/change-status/:id
+module.exports.changeStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    await Task.updateOne({ _id: id }, { status: status })
+    res.json({
+      success: true,
+      status: 200,
+      message: "Cập nhật trạng thái thành công !"
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
+
 

@@ -12,6 +12,9 @@ const systemConfig = require('./config/system');
 
 // ===============================================================
 
+// Đọc dữ liệu từ req.body khi dùng API
+app.use(express.json());
+
 // Connect to the database
 database.connect();
 
