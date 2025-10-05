@@ -131,3 +131,26 @@ module.exports.otpPassword = async (req, res) => {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
   }
 }
+// [POST] /users/password/reset
+module.exports.resetPassword = async (req, res) => {
+  try {
+    const { tokenUser, password } = req.body;
+
+    // Kiểm tra token có hợp lệ hay không
+    const exitToken = await User.findOne({ tokenUser: tokenUser });
+    if(!exitToken){
+      return sendErrorHelper.sendError(res, 400, "Lỗi server", "Yêu cầu không hợp lệ !");
+    }
+    
+    // Khi hợp lệ tiến hành lưu password mới
+    await User.updateOne({ _id: exitToken.id }, { password: md5(password) });
+
+    res.json({
+      success: true,
+      status: 200,
+      message: "Đổi mật khẩu thành công !"
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
