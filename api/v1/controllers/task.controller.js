@@ -68,4 +68,25 @@ module.exports.changeStatus = async (req, res) => {
   }
 }
 
+// [PATCH] /task/change-multi
+module.exports.changeMulti = async (req, res) => {
+  try {
+    const { ids, key, value } = req.body;
+    switch (key) {
+      case "status":
+        await Task.updateMany({ _id: { $in: ids } },{ status: value })
+        break;
+      default:
+        break;
+    }
+    res.json({
+      success: true,
+      status: 200,
+      message: "Cập nhật nhiều trạng thái thành công !"
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
+
 
