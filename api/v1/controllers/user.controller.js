@@ -157,19 +157,11 @@ module.exports.resetPassword = async (req, res) => {
 // [GET] /users/info
 module.exports.info = async (req, res) => {
   try {
-    const { tokenUser } = req.cookies;
-
-    // Kiểm tra token có hợp lệ hay không
-    const exitUser = await User.findOne({ tokenUser: tokenUser, deleted: false, status: "active" }).select("-password -tokenUser");
-    if(!exitUser){
-      return sendErrorHelper.sendError(res, 400, "Lỗi server", "Yêu cầu không hợp lệ !");
-    }
-
     res.json({
       success: true,
       status: 200,
       message: "Lấy thông tin thành công !",
-      data: exitUser
+      data: req.user
     });
   } catch (error) {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
