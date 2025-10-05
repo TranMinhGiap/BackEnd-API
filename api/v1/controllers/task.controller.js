@@ -89,4 +89,19 @@ module.exports.changeMulti = async (req, res) => {
   }
 }
 
+// [POST] /task/create
+module.exports.create = async (req, res) => {
+  try {
+    const newTask = new Task(req.body);
+    await newTask.save();
+    res.json({
+      success: true,
+      status: 200,
+      message: "Thêm thành công !"
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
+
 
