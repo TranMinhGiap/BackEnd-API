@@ -30,3 +30,27 @@ module.exports.register = async (req, res) => {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
   }
 }
+// [POST] /users/login
+module.exports.login = async (req, res) => {
+  try {
+    // Kiểm tra email 
+    const account = await User.findOne({ email: req.body.email, deleted: false });
+    if(!account){
+      return sendErrorHelper.sendError(res, 400, "Lỗi server", "email không đúng !");
+    }
+    // Có email thì kiểm tra password tương ứng
+    if(account.password !== md5(req.body.password)){
+      return sendErrorHelper.sendError(res, 400, "Lỗi server", "password không đúng !");
+    }
+    // Thành công thì trả về token
+    res.cookie("tokenUser", account.tokenUser);
+    res.json({
+      success: true,
+      status: 200,
+      message: "Đăng nhập thành công !",
+      tokenUser: account.tokenUser
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
