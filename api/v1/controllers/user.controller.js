@@ -137,7 +137,7 @@ module.exports.resetPassword = async (req, res) => {
     const { tokenUser, password } = req.body;
 
     // Kiểm tra token có hợp lệ hay không
-    const exitToken = await User.findOne({ tokenUser: tokenUser });
+    const exitToken = await User.findOne({ tokenUser: tokenUser, deleted: false, status: "active" });
     if(!exitToken){
       return sendErrorHelper.sendError(res, 400, "Lỗi server", "Yêu cầu không hợp lệ !");
     }
@@ -149,6 +149,27 @@ module.exports.resetPassword = async (req, res) => {
       success: true,
       status: 200,
       message: "Đổi mật khẩu thành công !"
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
+// [GET] /users/info
+module.exports.info = async (req, res) => {
+  try {
+    const { tokenUser } = req.cookies;
+
+    // Kiểm tra token có hợp lệ hay không
+    const exitUser = await User.findOne({ tokenUser: tokenUser, deleted: false, status: "active" }).select("-password -tokenUser");
+    if(!exitUser){
+      return sendErrorHelper.sendError(res, 400, "Lỗi server", "Yêu cầu không hợp lệ !");
+    }
+
+    res.json({
+      success: true,
+      status: 200,
+      message: "Lấy thông tin thành công !",
+      data: exitUser
     });
   } catch (error) {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);

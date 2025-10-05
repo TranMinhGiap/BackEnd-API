@@ -9,5 +9,6 @@ router.post('/login', controller.login)
 router.post('/password/forgot', controller.forgotPassword)  
 router.post('/password/otp', controller.otpPassword)  
 router.post('/password/reset', controller.resetPassword)  
+router.get('/info', controller.info)  
 
 module.exports = router;
