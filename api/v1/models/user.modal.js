@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const generate = require("../../../helpers/generate");
+const generate = require("../../../helpers/generate.helper");
 
 const userSchema = new mongoose.Schema(
   { 

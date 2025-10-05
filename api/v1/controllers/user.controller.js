@@ -1,6 +1,10 @@
 const sendErrorHelper = require('../../../helpers/sendError.helper');
 const User = require('../models/user.modal');
+const ForgotPassword = require('../models/forgot-password.model');
 const md5 = require("md5");
+
+const generateHelper = require('../../../helpers/generate.helper');
+const sendMailHelper = require('../../../helpers/send-mail.helper');
 
 // [POST] /users/register
 module.exports.register = async (req, res) => {
@@ -49,6 +53,45 @@ module.exports.login = async (req, res) => {
       status: 200,
       message: "Đăng nhập thành công !",
       tokenUser: account.tokenUser
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
+// [POST] /users/password/forgot
+module.exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    // Kiểm tra tài khoản dựa trên email
+    const account = await User.findOne({ email: email, deleted: false });
+    if(!account){
+      return sendErrorHelper.sendError(res, 400, "Lỗi server", "Email không hợp lệ !");
+    }
+    if(account.status === "inactive"){
+      return sendErrorHelper.sendError(res, 400, "Lỗi server", "Tài khoản đã bị khóa !");
+    }
+    // lưu email vào db trong 3p và gửi otp về client để xác nhận
+    const otp = generateHelper.generateRandomNumber(4);
+    const timeExpire = 3;
+
+    const objectForgotPassword = new ForgotPassword({
+      email: email,
+      otp: otp,
+      expireAt: new Date(Date.now() + timeExpire * 60 * 1000)
+    });
+
+    // Lưu email
+    await objectForgotPassword.save();
+
+    // Gửi opt về email
+    const subject = "Mã OTP lấy lại mật khẩu";
+    const html = `<p>Mã OTP của bạn là: <b>${otp}</b>. Mã có hiệu lực trong ${timeExpire} phút !</p>`;
+    sendMailHelper.sendMail(email, subject, html);
+    
+    res.json({
+      success: true,
+      status: 200,
+      message: "Gửi mã OTP để xác nhận thành công !",
     });
   } catch (error) {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
