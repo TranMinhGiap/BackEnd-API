@@ -119,4 +119,34 @@ module.exports.edit = async (req, res) => {
   }
 }
 
+// [DELETE] /task/delete/:id 
+module.exports.delete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Task.updateOne({ _id: id }, { deleted: true, deletedAt: new Date() });
+    res.json({
+      success: true,
+      status: 200,
+      message: "Xóa thành công !"
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
+
+// [DELETE] /task/delete-multi (Có thể dùng change-multi hoặc tách thành api riêng như này cũng được)
+module.exports.deleteMulti = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    await Task.updateMany({ _id: { $in: ids } }, { deleted: true, deletedAt: new Date() });
+    res.json({
+      success: true,
+      status: 200,
+      message: "Xóa nhiều thành công !"
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
+
 
