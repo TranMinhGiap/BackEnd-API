@@ -4,6 +4,9 @@ require('dotenv').config();
 const app = express()
 const port = process.env.PORT;
 
+// Cors
+var cors = require('cors')
+
 // routes api v1
 const routesApiV1 = require('./api/v1/routes/index.route')
 
@@ -14,6 +17,9 @@ const systemConfig = require('./config/system');
 
 // Đọc dữ liệu từ req.body khi dùng API
 app.use(express.json());
+
+// Cors
+app.use(cors())
 
 // Connect to the database
 database.connect();
