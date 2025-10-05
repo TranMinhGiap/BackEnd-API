@@ -97,3 +97,37 @@ module.exports.forgotPassword = async (req, res) => {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
   }
 }
+// [POST] /users/password/otp
+module.exports.otpPassword = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    // Kiểm tra otp còn hiệu lực không
+    const exitOtp = await ForgotPassword.findOne({ email: email });
+
+    if(!exitOtp){
+      return sendErrorHelper.sendError(res, 500, "Lỗi server", "Mã OTP đã hết hiệu lực !");
+    }
+    if(exitOtp.otp !== otp){
+      return sendErrorHelper.sendError(res, 500, "Lỗi server", "Mã OTP không đúng !");
+    }
+    
+    // Khi xác thực opt thành công phải xóa otp đi tránh sử dụng nhiều lần
+    await ForgotPassword.deleteOne({ _id: exitOtp.id });
+
+    // Trả về token
+    const infoUser = await User.findOne({ email: email, status: "active", deleted: false });
+    if(infoUser){
+      res.cookie("tokenUser", infoUser.tokenUser);
+    }
+
+    res.json({
+      success: true,
+      status: 200,
+      message: "Xác nhận OTP thành công !",
+      tokenUser: infoUser.tokenUser
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
