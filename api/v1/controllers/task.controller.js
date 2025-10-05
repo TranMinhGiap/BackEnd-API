@@ -45,7 +45,7 @@ module.exports.task = async (req, res) => {
 module.exports.detail = async (req, res) => {
   try {
     const id = req.params.id;
-    const records = await Task.find({ _id: id, deleted: false });
+    const records = await Task.findOne({ _id: id, deleted: false });
     res.json(records);
   } catch (error) {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
@@ -98,6 +98,21 @@ module.exports.create = async (req, res) => {
       success: true,
       status: 200,
       message: "Thêm thành công !"
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
+
+// [PATCH] /task/edit/:id (Co the de id trong body cung duoc de tren url bang query cung duoc)
+module.exports.edit = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Task.updateOne({ _id: id }, req.body);
+    res.json({
+      success: true,
+      status: 200,
+      message: "Cập nhật thành công !"
     });
   } catch (error) {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
