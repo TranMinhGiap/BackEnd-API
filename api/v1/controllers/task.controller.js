@@ -8,6 +8,10 @@ const searchHelper = require('../../../helpers/search.helper');
 module.exports.task = async (req, res) => {
   try {
     const condition = {
+      $or: [
+        { 'createdBy.user_id': req.user.id },
+        { listUser: req.user.id }
+      ],
       deleted: false
     }
     // Search
@@ -31,11 +35,13 @@ module.exports.task = async (req, res) => {
       .skip(objectPagination.skip)
       .limit(objectPagination.limit);
     // Giúp FE xử lý phân trang tốt hơn
-    const data = {
+    res.json({
+      success: true,
+      status: 200,
+      message: "Lấy task thành công !",
       data: records,
       pagination: objectPagination
-    }
-    res.json(data);
+    });
   } catch (error) {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
   }
