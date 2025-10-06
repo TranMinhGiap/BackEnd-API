@@ -12,6 +12,7 @@ const taskSchema = new mongoose.Schema(
       default: false
     },
     listUser: Array,
+    taskParentId: String,
     createdBy: {
       user_id: String,
       createdAt: {
