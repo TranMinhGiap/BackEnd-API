@@ -167,3 +167,17 @@ module.exports.info = async (req, res) => {
     sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
   }
 }
+// [GET] /users/list
+module.exports.list = async (_, res) => {
+  try {
+    const listUser = await User.find({ deleted: false, status: "active" }).select("fullName email");
+    res.json({
+      success: true,
+      status: 200,
+      message: "Lấy danh sách user thành công !",
+      data: listUser
+    });
+  } catch (error) {
+    sendErrorHelper.sendError(res, 500, "Lỗi server", error.message);
+  }
+}
