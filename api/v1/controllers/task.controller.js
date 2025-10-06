@@ -92,6 +92,7 @@ module.exports.changeMulti = async (req, res) => {
 // [POST] /task/create
 module.exports.create = async (req, res) => {
   try {
+    req.body.createdBy = { user_id: req.user.id };
     const newTask = new Task(req.body);
     await newTask.save();
     res.json({
